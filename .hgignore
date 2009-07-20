@@ -1,0 +1,5 @@
+syntax: regexp
+
+# alle object-files sind uninteressant
+\.o$
+

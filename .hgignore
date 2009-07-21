@@ -3,3 +3,5 @@ syntax: regexp
 # alle object-files sind uninteressant
 \.o$
 
+# the repository list is private
+^doc/repositories.txt$

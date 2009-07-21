@@ -168,6 +168,8 @@ class FilesDataSource < NSObject
   def update(sender)
     pattern=Regexp.new(sender.stringValue)
     filter_files(pattern)
+  rescue
+    filter_files(nil)
   end
 end
 

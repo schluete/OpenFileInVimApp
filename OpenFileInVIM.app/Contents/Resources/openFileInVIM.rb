@@ -150,7 +150,8 @@ class FilesDataSource < NSObject
         raise 'error'
       end
     end
-    @files=files.sort_by { |match| File.basename(match) }
+    #@files=files.sort_by { |match| File.basename(match) }
+    @files=files.sort
   end
 
   # filter the list of files by the given pattern
@@ -167,6 +168,8 @@ class FilesDataSource < NSObject
   def update(sender)
     pattern=Regexp.new(sender.stringValue)
     filter_files(pattern)
+  rescue
+    filter_files(nil)
   end
 end
 

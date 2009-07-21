@@ -15,7 +15,7 @@ end
 
 # wenn der gefundene Pfad eine Datei ist nehmen wir das
 # die Datei umschliessende Verzeichniss
-if File.exists?(path)
+if File.exists?(path) and File.file?(path)
   path=File.dirname(path)
 end
 

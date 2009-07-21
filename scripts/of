@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+#vim:syntax=ruby
+
+# the file to which the starter script writes the directory
+# path to start the directory listing in
+PATH_TMP_FILE='/tmp/open_file_in_vim_path'
+
+# zuerst schreiben wir den uebergebenen Pfad (oder das aktuelle
+# Verzeichniss, wenn wir keinen Pfad bekommen haben) in die Config-Datei
+path=if ARGV.length>0 and ARGV[0].strip.length>0
+  ARGV[0].strip
+else
+  Dir.pwd
+end
+
+# wenn der gefundene Pfad eine Datei ist nehmen wir das
+# die Datei umschliessende Verzeichniss
+if File.exists?(path)
+  path=File.dirname(path)
+end
+
+# und jetzt noch wegschreiben
+File.open(PATH_TMP_FILE,'w') { |fh| fh.puts path }
+
+# und jetzt starten wir das Executable
+`open /Users/schluete/Applications/OpenFileInVIM.app`

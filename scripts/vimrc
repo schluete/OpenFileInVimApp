@@ -1,0 +1,19 @@
+
+" our little file opener
+map <C-t> :call BrowseFiles()<CR>
+
+function! BrowseFiles()
+ruby << EOF
+	path=File.dirname($curbuf.name)
+  PATH_TMP_FILE='/tmp/open_file_in_vim_path'
+  File.open(PATH_TMP_FILE,'w') { |fh| fh.puts path }
+  `open /Users/schluete/Applications/OpenFileInVIM.app`
+EOF
+endfunction
+
+" function! BrowseFiles()
+"   let curr_file=expand("%:p")
+"   execute(":.!of ".curr_file)
+"   execute("u")
+" endfunction
+

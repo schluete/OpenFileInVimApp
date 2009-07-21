@@ -59,19 +59,24 @@ class FilesDataSource < NSObject
 
   # NSTableView delegate: a key was pressed in the tableview
   def control_textView_doCommandBySelector(control,textView,commandSelector)
+    curr_row=@table.selectedRow
     case commandSelector.to_s
     when 'cancelOperation:'
       NSApp.stop(self)
+    when 'moveUp:'
+      @table.selectRow_byExtendingSelection(curr_row-1,false)
+      true
     when 'moveDown:'
-      @table.window.makeFirstResponder(@table)
-      if @table.selectedRow==-1
-        @table.selectRow_byExtendingSelection(0,false)
-      end
+      @table.selectRow_byExtendingSelection(curr_row+1,false)
       true
     when 'insertNewline:'
-      @filtered_files.size==1 ? open_file_in_editor(0) : false
-    else
-      false
+      if curr_row!=-1
+        open_file_in_editor(curr_row)
+      elsif @filtered_files.size==1
+        open_file_in_editor(0)
+      else
+        false
+      end
     end
   end
 
@@ -159,7 +164,6 @@ class FilesDataSource < NSObject
     regexp=Regexp.new(pattern || '.*')
     @filtered_files=@files.inject([]) do |matches,file| 
       file_without_basepath=file[@basepath.length .. -1]
-puts "<#{file_without_basepath}> =~ <#{regexp}> is <#{file_without_basepath=~regexp}>"
       matches << file if file_without_basepath=~regexp
       matches
     end

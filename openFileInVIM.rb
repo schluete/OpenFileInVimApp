@@ -141,11 +141,11 @@ class FilesDataSource < NSObject
       files << file if FileTest.file?(file)
 
       # wir bauen hier mal einen kleinen Idiotentest ein. Wenn wir mehr
-      # als 5000 Dateien gefunden haben dann sind wir vermtl. in einem 
+      # als 10000 Dateien gefunden haben dann sind wir vermtl. in einem 
       # falschen Verzeichniss und brechen die Suche ab.
-      if files.length>5000
+      if files.length>10000
         NSRunInformationalAlertPanel('Large directory found!',
-          "Gathered more than 5k files from directory '#{@path}', aborting search!",'OK',nil,nil)
+          "Gathered more than 10k files from directory '#{@path}', aborting search!",'OK',nil,nil)
         NSApp.stop(self)
         raise 'error'
       end

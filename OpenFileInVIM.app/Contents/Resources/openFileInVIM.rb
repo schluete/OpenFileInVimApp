@@ -129,7 +129,7 @@ class FilesDataSource < NSObject
   def create_list_of_files
     @path=find_rakefile
     @table.window.setTitle(@path)
-    @files=[]
+    files=[]
     Find.find(@path) do |file|
       # we don't want any files from a repository in the list 
       next if file=~/(\.hg|\.svn|\.git)/ 
@@ -138,9 +138,19 @@ class FilesDataSource < NSObject
       next if File.basename(file)=~/^\./ 
       
       # file matches, add it to the resulting list
-      @files << file if FileTest.file?(file)
+      files << file if FileTest.file?(file)
+
+      # wir bauen hier mal einen kleinen Idiotentest ein. Wenn wir mehr
+      # als 5000 Dateien gefunden haben dann sind wir vermtl. in einem 
+      # falschen Verzeichniss und brechen die Suche ab.
+      if files.length>5000
+        NSRunInformationalAlertPanel('Large directory found!',
+          "Gathered more than 5k files from directory '#{@path}', aborting search!",'OK',nil,nil)
+        NSApp.stop(self)
+        raise 'error'
+      end
     end
-    @files.sort_by { |match| File.basename(match) }
+    @files=files.sort_by { |match| File.basename(match) }
   end
 
   # filter the list of files by the given pattern

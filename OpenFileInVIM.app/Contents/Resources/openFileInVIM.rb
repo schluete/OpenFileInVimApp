@@ -100,9 +100,9 @@ class FilesDataSource < NSObject
 
   # traverse the directory up until a Rakefile was found, then
   # return this path
-  def find_rakefile
+  def find_rakefile_and_basepath
     # zuerst lesen wir den Startpfad aus der Datei ein
-    unless File.exists?(PATH_TMP_FILE) and (base_path=IO.read(PATH_TMP_FILE).strip)
+    unless File.exists?(PATH_TMP_FILE) and (@basepath=IO.read(PATH_TMP_FILE).strip)
       NSRunInformationalAlertPanel('Invalid start directory!',
         "No directory information could be found in the configuration file '#{PATH_TMP_FILE}'!",
         'OK',nil,nil)
@@ -111,7 +111,7 @@ class FilesDataSource < NSObject
 
     # jetzt gehen wir max. 5 Ebenen nach oben und suchen
     # nach einem Rakefile im Verzeichnis
-    path=base_path
+    path=@basepath
     (0..5).each do |step|
       Dir.entries(path).each do |entry|
         return path if entry=~/Rakefile/
@@ -121,13 +121,13 @@ class FilesDataSource < NSObject
 
     # no reasonable rakefile was found, let's just use
     # the current directory for the files
-    base_path # Dir.pwd
+    @basepath # Dir.pwd
   end
 
   # search the directory tree for all files we could possibly
   # want to edit
   def create_list_of_files
-    @path=find_rakefile
+    @path=find_rakefile_and_basepath
     @table.window.setTitle(@path)
     files=[]
     Find.find(@path) do |file|
@@ -158,7 +158,9 @@ class FilesDataSource < NSObject
   def filter_files(pattern)
     regexp=Regexp.new(pattern || '.*')
     @filtered_files=@files.inject([]) do |matches,file| 
-      matches << file if file=~regexp
+      file_without_basepath=file[@basepath.length .. -1]
+puts "<#{file_without_basepath}> =~ <#{regexp}> is <#{file_without_basepath=~regexp}>"
+      matches << file if file_without_basepath=~regexp
       matches
     end
     @table.reloadData

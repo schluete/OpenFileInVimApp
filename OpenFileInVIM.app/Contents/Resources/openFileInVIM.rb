@@ -29,6 +29,18 @@ class MyTableView < NSTableView
   end
 end
 
+class TableViewControllingSearchField < NSSearchField
+  def mouseDown(event)
+    puts "got a mouse dow <#{event.inspect}>"
+    super_mouseDown(event)
+  end
+
+  def keyDown(event)
+    puts "got key down <#{event.inspect}>"
+    super_keyDown(event)
+  end 
+end
+
 class FilesDataSource < NSObject
   ib_outlet :table
 
@@ -57,7 +69,7 @@ class FilesDataSource < NSObject
     end
   end
 
-  # NSTableView delegate: a key was pressed in the tableview
+  # NSTextView delegate: a key was pressed in the textview
   def control_textView_doCommandBySelector(control,textView,commandSelector)
     curr_row=@table.selectedRow
     case commandSelector.to_s
@@ -103,9 +115,9 @@ class FilesDataSource < NSObject
     true
   end
 
-  # traverse the directory up until a Rakefile was found, then
+  # traverse the directory up until a repository was found, then
   # return this path
-  def find_rakefile_and_basepath
+  def find_repository_and_basepath
     # zuerst lesen wir den Startpfad aus der Datei ein
     unless File.exists?(PATH_TMP_FILE) and (@basepath=IO.read(PATH_TMP_FILE).strip)
       NSRunInformationalAlertPanel('Invalid start directory!',
@@ -119,7 +131,7 @@ class FilesDataSource < NSObject
     path=@basepath
     (0..5).each do |step|
       Dir.entries(path).each do |entry|
-        return path if entry=~/Rakefile/
+        return path if entry=~/^(.git|.hg)$/
       end
       path+="/.."
     end
@@ -132,12 +144,12 @@ class FilesDataSource < NSObject
   # search the directory tree for all files we could possibly
   # want to edit
   def create_list_of_files
-    @path=find_rakefile_and_basepath
+    @path=find_repository_and_basepath
     @table.window.setTitle(@path)
     files=[]
     Find.find(@path) do |file|
       # we don't want any files from a repository in the list 
-      next if file=~/(\.hg|\.svn|\.git)/ 
+      next if file=~/(\.hg|\.svn|\.git|\.pyc)/ 
 
       # neither do we want dotfiles in the list
       next if File.basename(file)=~/^\./ 
@@ -172,6 +184,7 @@ class FilesDataSource < NSObject
 
   # called if the user changed the search pattern
   def update(sender)
+    puts "update was cllaed"
     pattern=Regexp.new(sender.stringValue)
     filter_files(pattern)
   rescue
@@ -204,6 +217,7 @@ def rb_main_init
   rbfiles.each do |path|
     require(File.basename(path))
   end
+  puts "application started"
 end
 
 # program entry point

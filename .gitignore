@@ -1,0 +1,10 @@
+.DS_Store
+*.swp
+*~.nib
+
+*.o
+
+*.pbxuser
+*.perspective
+*.perspectivev3
+
